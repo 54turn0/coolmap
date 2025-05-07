@@ -1,8 +1,8 @@
 // Configuración de Firebase (reemplaza con tus credenciales)
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_PROYECTO.firebaseapp.com",
-  projectId: "TU_PROYECTO",
+  apiKey: "AIzaSyBpFLXohFsJwh6T24anBjuZl0h_vDPGvDM",
+  authDomain: "coolmap-d3df1.firebaseapp.com",
+  projectId: "coolmap",
   storageBucket: "TU_PROYECTO.appspot.com",
   messagingSenderId: "TU_SENDER_ID",
   appId: "TU_APP_ID"
