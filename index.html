@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CoolMap 🌱 | Reduce el uso de Aire Acondicionado</title>
+  <!-- Leaflet (Mapa) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <!-- Tailwind CSS (Diseño rápido) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome (Íconos) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="bg-gray-50">
+  <!-- Navbar -->
+  <nav class="bg-green-600 p-4 text-white shadow-lg">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-bold"><i class="fas fa-leaf mr-2"></i>CoolMap</h1>
+      <button id="loginBtn" class="bg-white text-green-600 px-4 py-2 rounded-lg font-medium" href="login.html">Iniciar
+        Sesión</button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="container mx-auto mt-8 p-4 text-center">
+    <h2 class="text-4xl font-bold text-gray-800">¡Reduce el uso de AC y salva el planeta!</h2>
+    <p class="mt-4 text-gray-600">Registra tu edificio y descubre cómo ahorrar energía con técnicas sostenibles.</p>
+  </section>
+
+  <!-- Mapa y Controles -->
+  <div class="container mx-auto mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Mapa -->
+    <div class="lg:col-span-2 bg-white p-4 rounded-lg shadow-md">
+      <div id="map" class="rounded-lg">
+        <center>
+          <!--Muestra de imagen-->
+          <div class="container">
+            <input type="file" id="imageInput" accept="image/*">
+            
+            <div id="previewContainer">
+              <img id="imagePreview" style="display: none;">
+            </div>
+          </div>
+
+          <script>
+            document.getElementById('imageInput').addEventListener('change', function (event) {
+              const file = event.target.files[0];
+              if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                  const imagePreview = document.getElementById('imagePreview');
+                  imagePreview.src = e.target.result;
+                  imagePreview.style.display = 'block';
+                }
+
+                reader.readAsDataURL(file);
+              }
+            });
+          </script>
+        </center>
+      </div>
+    </div>
+
+    <!-- Formulario -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <h3 class="text-xl font-semibold mb-4"><i class="fas fa-home mr-2"></i>Registra tu edificio</h3>
+      <form id="buildingForm" class="space-y-4">
+        <input type="text" id="buildingName" placeholder="Nombre del edificio" class="w-full p-2 border rounded">
+        <select id="coolingTechnique" class="w-full p-2 border rounded">
+          <option value="">Selecciona una técnica</option>
+          <option value="ventilacion_cruzada">Ventilación cruzada</option>
+          <option value="persianas">Persianas inteligentes</option>
+          <option value="techos_verdes">Techos verdes</option>
+        </select>
+        <button class="btncargar" id="openModalBtn"><i class="fas fa-save mr-2"></i>Cargar imagen</button>
+
+        <!-- Ventana emergente (modal) -->
+        <div class="overlay" id="overlay"></div>
+        <div class="modal" id="modal">
+          <i class="fa-solid fa-image"></i>
+          <h2>!Felicidades!</h2>
+          <p>Subiste esta imagen con exito, un administrador lo verificara para entrregarte tus puntos.</p>
+        </div>
+        <!-- Scrip para el boton-->
+        <script>
+          const openModalBtn = document.getElementById('openModalBtn');
+          const modal = document.getElementById('modal');
+          const overlay = document.getElementById('overlay');
+
+          // Abrir modal al hacer clic en el botón
+          openModalBtn.addEventListener('click', () => {
+            modal.style.display = 'block';
+            overlay.style.display = 'block';
+
+            // Cerrar automáticamente después de 2 segundos (2000 ms)
+            setTimeout(() => {
+              modal.style.display = 'none';
+              overlay.style.display = 'none';
+            }, 2000);
+          });
+        </script>
+      </form>
+
+      <!-- Datos Climáticos -->
+      <h1>Clima en Lima, Perú</h1>
+      <div id="weatherInfo" class="weather-container">
+        <p class="loading">Cargando datos del clima...</p>
+      </div>
+
+      <script>
+        // Reemplaza con tu API Key de OpenWeatherMap
+        const API_KEY = 'd997906af2973d87326e3ed0466fbd67';
+
+        // Consulta automática al cargar la página
+        window.onload = function () {
+          getWeather();
+        };
+
+        function getWeather() {
+          const weatherInfo = document.getElementById('weatherInfo');
+
+          // Lima, Perú (coordenadas aproximadas)
+          const lat = -12.043;
+          const lon = -77.028;
+
+          fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=es&appid=${API_KEY}`)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('No se pudo obtener el clima');
+              }
+              return response.json();
+            })
+            .then(data => {
+              displayWeather(data);
+            })
+            .catch(error => {
+              weatherInfo.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            });
+        }
+
+        function displayWeather(data) {
+          const weatherInfo = document.getElementById('weatherInfo');
+          const weather = data.weather[0];
+          const main = data.main;
+
+          weatherInfo.innerHTML = `
+                <h2>${data.name}, Perú</h2>
+                <img id="weather-icon" src="https://openweathermap.org/img/wn/${weather.icon}@2x.png" alt="${weather.description}">
+                <p><strong>Temperatura actual:</strong> ${main.temp}°C</p>
+                <p><strong>Sensación térmica:</strong> ${main.feels_like}°C</p>
+                <p><strong>Mínima:</strong> ${main.temp_min}°C / <strong>Máxima:</strong> ${main.temp_max}°C</p>
+                <p><strong>Humedad:</strong> ${main.humidity}%</p>
+                <p><strong>Condición:</strong> ${weather.description}</p>
+                <p><strong>Viento:</strong> ${data.wind.speed} m/s</p>
+                <p><small>Última actualización: ${new Date().toLocaleTimeString()}</small></p>
+                `;
+        }
+
+      </script>
+    </div>
+  </div>
+
+  <!-- Gráfico de Ahorro -->
+  <div class="container mx-auto mt-8 bg-white p-6 rounded-lg shadow-md">
+    <h3 class="text-xl font-semibold mb-4"><i class="fas fa-chart-line mr-2"></i>Ahorro energético en tu zona</h3>
+    <canvas id="savingsChart" width="400" height="200"></canvas>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="/js/firebase.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/chart.js"></script>
+</body>
+
+</html>
